@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive diagram tracing the square through dimensional extension, orthogonal elongation, faceting, and complex-polygon recombination.">
+  <title>Complex Reduction: The Rectangle Becomes a Polygon</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Complex Reduction</h1>
+    </header>
+
+    <section class="viewer" aria-label="Interactive geometric trajectory">
+      <div class="canvas-panel">
+        <div class="stage-tag" id="stageTag">TRAJECTORY 0%</div>
+        <canvas id="shapeCanvas" width="900" height="700" aria-label="Rotating geometric form"></canvas>
+        <div class="canvas-note" id="canvasNote">Move the master slider or isolate each transformation below.</div>
+      </div>
+
+      <aside class="info-panel">
+        <div class="phase" id="phase">Modernist Centre</div>
+        <div class="descriptor" id="descriptor">2 real dimensions · 4 vertices</div>
+        <h2 id="shapeTitle">Square</h2>
+        <p class="description" id="description">
+          The square is a unified planar sign: regular, orthogonal, and stripped of inherited ornament.
+        </p>
+
+        <dl class="metrics">
+          <div>
+            <dt>Spatial condition</dt>
+            <dd id="dimensionMetric">2D plane</dd>
+          </div>
+          <div>
+            <dt>Visible vertices</dt>
+            <dd id="vertexMetric">4</dd>
+          </div>
+          <div>
+            <dt>Structural units</dt>
+            <dd id="unitMetric">1 face</dd>
+          </div>
+          <div>
+            <dt>Formal condition</dt>
+            <dd id="conditionMetric">Orthogonal reduction</dd>
+          </div>
+        </dl>
+
+        <div class="formula">
+          <div class="formula-label">Formal trajectory</div>
+          <p>Square → cube → rectangular prism → truncated pyramid → complex polygon</p>
+        </div>
+
+        <div class="essay-note" id="essayNote">
+          Complexity returns without abandoning abstraction. The square becomes dimensional, extended, faceted, and finally recombined in a higher-order geometric field.
+        </div>
+      </aside>
+    </section>
+
+    <section class="controls" aria-label="Shape controls">
+      <div class="control-block trajectory-control">
+        <div class="control-heading">
+          <label for="trajectorySlider">Master trajectory</label>
+          <output id="trajectoryOutput">0%</output>
+        </div>
+        <input id="trajectorySlider" type="range" min="0" max="100" step="1" value="0">
+        <div class="stage-labels" id="stageLabels">
+          <span>Square</span>
+          <span>Cube</span>
+          <span>Rectangle</span>
+          <span>Frustum</span>
+          <span>4{4}2</span>
+        </div>
+      </div>
+
+      <div class="parameter-grid">
+        <div class="control-block parameter-control">
+          <div class="control-heading">
+            <label for="dimensionSlider">1. Dimension / depth</label>
+            <output id="dimensionOutput">0%</output>
+          </div>
+          <input id="dimensionSlider" type="range" min="0" max="100" step="1" value="0">
+          <div class="parameter-axis"><span>Square</span><span>Cube</span></div>
+        </div>
+
+        <div class="control-block parameter-control">
+          <div class="control-heading">
+            <label for="extensionSlider">2. Orthogonal extension</label>
+            <output id="extensionOutput">0%</output>
+          </div>
+          <input id="extensionSlider" type="range" min="0" max="100" step="1" value="0">
+          <div class="parameter-axis"><span>Cube</span><span>Rectangle</span></div>
+        </div>
+
+        <div class="control-block parameter-control">
+          <div class="control-heading">
+            <label for="recombinationSlider">3. Faceting / recombination</label>
+            <output id="recombinationOutput">0%</output>
+          </div>
+          <input id="recombinationSlider" type="range" min="0" max="100" step="1" value="0">
+          <div class="parameter-axis three"><span>Prism</span><span>Frustum</span><span>Complex</span></div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="rotateButton" type="button">Pause rotation</button>
+        <button id="resetButton" type="button">Reset</button>
+      </div>
+
+      <div class="thesis-line">
+        <strong>The movement from modernism to postmodernism can therefore be summarized as the rectangle becoming a polygon.</strong>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

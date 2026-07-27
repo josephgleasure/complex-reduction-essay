@@ -1,0 +1,34 @@
+{
+  "sliderLabel": "Move through the three stages",
+  "axis": ["Pre-modern ornament", "Modernist reduction", "Postmodern return"],
+  "note": "A three-stage model of how ornament is reduced in modernism and then returns as a new form of complexity in postmodernism.",
+  "works": [
+    {
+      "title": "Classical Column",
+      "artist": "Doric / Ionic classical order",
+      "year": "pre-modern architecture",
+      "phase": "Pre-modern",
+      "desc": "Decorative ornamentation based in naturalistic depiction, or basic abstraction of forms.",
+      "source": "Classical pillar reference",
+      "img": "assets/01-classical-column.png"
+    },
+    {
+      "title": "Miesian Column",
+      "artist": "Miesian structural language",
+      "year": "modernism",
+      "phase": "Modernism",
+      "desc": "Reduction of ornamentation.",
+      "source": "Modernist column reference",
+      "img": "assets/02-modernist-column.png"
+    },
+    {
+      "title": "Zaha Hadid Column",
+      "artist": "Postmodern / contemporary expression",
+      "year": "postmodern trajectory",
+      "phase": "Post Modernism",
+      "desc": "Reintroduction of complexity via the new logic of modernism.",
+      "source": "Zaha Hadid inspired column reference",
+      "img": "assets/03-postmodern-column.png"
+    }
+  ]
+}

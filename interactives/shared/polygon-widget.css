@@ -1,0 +1,268 @@
+.polygon-widget {
+  border: 1px solid var(--ink, #171714);
+  background: #fff;
+  font-family: "Source Sans 3", Arial, Helvetica, sans-serif;
+}
+
+.polygon-widget .pw-viewer {
+  display: flex;
+  flex-direction: column;
+}
+
+.polygon-widget .pw-canvas-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: min(420px, 48vh);
+  min-height: min(420px, 48vh);
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink, #171714);
+  background: #ebe5da;
+  padding: 12px;
+}
+
+.polygon-widget canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.polygon-widget .pw-stage-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  background: var(--ink, #171714);
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.polygon-widget .pw-canvas-note {
+  position: absolute;
+  left: 14px;
+  bottom: 10px;
+  font-size: 9px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted, #69665f);
+}
+
+.polygon-widget .pw-info {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--ink, #171714);
+}
+
+.polygon-widget .pw-phase {
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.polygon-widget .pw-descriptor {
+  font-size: 13px;
+  color: var(--muted, #69665f);
+  margin-bottom: 4px;
+}
+
+.polygon-widget .pw-title {
+  margin: 0 0 10px;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+.polygon-widget .pw-title.long-title {
+  font-size: clamp(18px, 2vw, 24px);
+}
+
+.polygon-widget .pw-desc {
+  margin: 0 0 14px;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: var(--text-base, 16px);
+  line-height: 1.55;
+}
+
+.polygon-widget .pw-metrics {
+  margin: 0;
+  border-top: 1px solid var(--rule, #c9c2b5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+
+.polygon-widget .pw-metrics > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule, #c9c2b5);
+  font-size: 11px;
+}
+
+.polygon-widget .pw-metrics dt {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted, #69665f);
+}
+
+.polygon-widget .pw-metrics dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.polygon-widget .pw-formula {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule, #c9c2b5);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.polygon-widget .pw-formula-label {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.polygon-widget .pw-essay-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule, #c9c2b5);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted, #69665f);
+}
+
+.polygon-widget .pw-controls {
+  padding: 14px 16px 16px;
+  background: #fff;
+}
+
+.polygon-widget .pw-control-block {
+  margin-bottom: 12px;
+}
+
+.polygon-widget .pw-control-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.polygon-widget .pw-control-heading output {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.polygon-widget input[type="range"] {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: var(--ink, #171714);
+  outline: none;
+}
+
+.polygon-widget input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink, #171714);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--ink, #171714);
+  cursor: pointer;
+}
+
+.polygon-widget input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink, #171714);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--ink, #171714);
+  cursor: pointer;
+}
+
+.polygon-widget .pw-stage-labels {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted, #69665f);
+  text-align: center;
+}
+
+.polygon-widget .pw-stage-labels span.active {
+  color: var(--ink, #171714);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.polygon-widget .pw-param-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule, #c9c2b5);
+}
+
+.polygon-widget .pw-param-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 8px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted, #69665f);
+}
+
+.polygon-widget .pw-param-axis.three span:nth-child(2) { text-align: center; flex: 1; }
+
+.polygon-widget .pw-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.polygon-widget button {
+  height: 36px;
+  border: 1px solid var(--ink, #171714);
+  background: #fff;
+  padding: 0 12px;
+  font-size: 10px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.polygon-widget button:hover {
+  background: var(--ink, #171714);
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .polygon-widget .pw-param-grid { grid-template-columns: 1fr; }
+  .polygon-widget .pw-metrics { grid-template-columns: 1fr; }
+}

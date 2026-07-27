@@ -1,0 +1,69 @@
+:root{
+  --ink:#000;
+  --paper:#fff;
+  --line:#000;
+  --muted:#464646;
+  --panel:#fff;
+  --panel2:#f4f4f4;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper) url('assets/terrazzo-bg.png') repeat;color:var(--ink);font-family:Arial,Helvetica,sans-serif;background-size:720px auto;background-attachment:fixed}
+body{min-height:100vh}
+main{width:min(1240px,calc(100% - 32px));margin:0 auto;padding:22px 0 40px}
+header{border-bottom:2px solid var(--line);padding-bottom:12px}
+h1{margin:0;font-size:clamp(38px,5vw,66px);line-height:.95;letter-spacing:-.048em;font-weight:700}
+.viewer{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(330px,.72fr);border:2px solid var(--line);background:var(--panel);height:690px;min-height:0}
+.canvas-panel{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;height:100%;overflow:hidden;border-right:2px solid var(--line);background:var(--panel2);padding:18px}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.stage-tag{position:absolute;top:12px;left:12px;z-index:2;background:#000;color:#fff;padding:7px 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.canvas-note{position:absolute;left:18px;bottom:12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.info-panel{padding:22px;display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden}
+.phase{font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.descriptor{font-size:14px;color:var(--muted);margin-bottom:5px}
+h2{margin:0 0 15px;font-size:clamp(30px,2.8vw,42px);line-height:.98;letter-spacing:-.04em}
+h2.long-title{font-size:clamp(27px,2.25vw,34px);line-height:1;letter-spacing:-.032em}
+.description{margin:0 0 17px;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.48}
+.metrics{margin:0;border-top:1px solid var(--line)}
+.metrics>div{display:grid;grid-template-columns:1fr auto;gap:14px;padding:9px 0;border-bottom:1px solid #b7b7b7}
+.metrics dt{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.metrics dd{margin:0;font-size:13px;font-weight:700;text-align:right;max-width:170px}
+.formula{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.formula-label{font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:700}
+.formula p{margin:7px 0 0;font-size:13px;line-height:1.45}
+.essay-note{margin-top:auto;padding-top:13px;border-top:1px solid var(--line);font-size:11.5px;line-height:1.4}
+.controls{border:2px solid var(--line);border-top:0;background:var(--panel);padding:16px 18px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 26px;align-items:end}
+.control-block{min-width:0}
+.trajectory-control{grid-column:1/-1}
+.control-heading{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:11px}
+.control-heading label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.control-heading output{font-family:'Courier New',monospace;font-size:13px}
+input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:2px;background:#000;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#000;border:2px solid #fff;box-shadow:0 0 0 2px #000;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#000;border:2px solid #fff;box-shadow:0 0 0 2px #000;cursor:pointer}
+.stage-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.stage-labels span:first-child{text-align:left}
+.stage-labels span:last-child{text-align:right}
+.stage-labels span.active{color:#000;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.parameter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.parameter-control{padding-top:13px;border-top:1px solid var(--line)}
+.parameter-axis{display:flex;justify-content:space-between;margin-top:8px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.parameter-axis.three span:nth-child(2){text-align:center}
+.button-row{display:flex;gap:8px;align-items:center}
+button{height:42px;border:2px solid #000;background:#fff;padding:0 15px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+button:hover{background:#000;color:#fff}
+.thesis-line{grid-column:1/-1;border-top:1px solid var(--line);padding-top:13px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45}
+@media(max-width:900px){
+  .viewer{grid-template-columns:1fr;height:auto}
+  .canvas-panel{border-right:0;border-bottom:2px solid var(--line);height:60vh;min-height:470px}
+  .info-panel{min-height:470px;height:auto}
+  .controls{grid-template-columns:1fr}
+  .parameter-grid{grid-template-columns:1fr}
+  .button-row{justify-content:flex-start}
+}
+@media(max-width:560px){
+  main{width:min(100%,calc(100% - 18px));padding-top:14px}
+  .canvas-panel{height:52vh;min-height:390px;padding:8px}
+  .info-panel{padding:17px}
+  .controls{padding:15px}
+  .stage-labels{font-size:8px;gap:3px}
+}

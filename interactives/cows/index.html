@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complex Reduction: From Cow to Continental</title>
+<style>
+:root{--ink:#000;--paper:#fff;--line:#000;--muted:#444;--panel:#fff;--panel2:#f5f5f5}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper) url('assets/terrazzo-bg.png') repeat;color:var(--ink);font-family:Arial,Helvetica,sans-serif;background-size:720px auto;background-attachment:fixed}
+main{width:min(1200px,calc(100% - 32px));margin:0 auto;padding:28px 0 40px}
+header{border-bottom:2px solid var(--line);padding-bottom:12px;margin-bottom:0}
+h1{margin:0;font-size:clamp(30px,5vw,64px);line-height:.95;letter-spacing:-.045em;font-weight:700}
+.viewer{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,.7fr);border:2px solid var(--line);min-height:700px;background:var(--panel)}
+.image-wrap{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--panel2);border-right:2px solid var(--line);padding:18px}
+.hero-media{width:100%;height:100%;display:grid;align-items:center;justify-items:center;transition:opacity .14s ease}.hero-media.single{grid-template-columns:1fr}.hero-media.split{grid-template-columns:1fr 1fr;gap:14px}.hero-media img{display:block;width:100%;height:100%;max-height:650px;object-fit:contain}@media(max-width:860px){.hero-media.split{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+.stage-tag{position:absolute;top:12px;left:12px;background:var(--ink);color:#fff;padding:7px 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.info{display:flex;flex-direction:column;padding:22px}
+.phase{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:700;margin-bottom:16px}
+.artist{font-size:14px;color:var(--muted);margin-bottom:4px}
+h2{font-size:clamp(28px,3vw,46px);line-height:.96;letter-spacing:-.04em;margin:0 0 18px}
+.desc{font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.55;margin:0 0 auto}
+.source{font-size:11px;line-height:1.45;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:22px}
+.controls{border:2px solid var(--line);border-top:0;padding:16px 18px 14px;background:var(--panel)}
+header,.viewer,.controls{box-shadow:0 0 0 1px rgba(0,0,0,.02)}
+.control-row{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:14px}
+button{border:2px solid var(--line);background:#fff;color:#000;width:44px;height:44px;font-size:22px;cursor:pointer}
+button:hover{background:#000;color:#fff}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:2px;background:#000;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#000;border:2px solid #fff;box-shadow:0 0 0 2px #000;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#000;border:2px solid #fff;box-shadow:0 0 0 2px #000;cursor:pointer}
+.labels{display:grid;grid-template-columns:repeat(10,1fr);gap:0;margin:12px 58px 0;font-size:10px;color:var(--muted);text-align:center}
+.labels span.active{color:#000;font-weight:700;text-decoration:underline}
+.axis{display:flex;justify-content:space-between;margin:12px 58px 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;line-height:1.45;color:#222}
+@media(max-width:860px){.viewer{grid-template-columns:1fr;min-height:0}.image-wrap{border-right:0;border-bottom:2px solid var(--line);height:54vh;min-height:380px}.info{min-height:410px}.labels{display:none}.axis{margin-left:58px;margin-right:58px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Complex Reduction</h1>
+</header>
+<section class="viewer">
+<div class="image-wrap"><div class="stage-tag" id="stageTag"></div><div id="hero" class="hero-media"></div></div>
+<div class="info">
+<div class="phase" id="phase"></div>
+<div class="artist" id="artist"></div>
+<h2 id="title"></h2>
+<p class="desc" id="desc"></p>
+<div class="source" id="source"></div><div class="note" id="note" hidden></div>
+</div>
+</section>
+<section class="controls">
+<div class="control-row"><button id="prev" aria-label="Previous image">←</button><input id="slider" type="range" min="1" max="10" step="1" value="1" aria-label="Move through the ten stages"><button id="next" aria-label="Next image">→</button></div>
+<div class="labels" id="labels"></div>
+<div class="axis"><span>Representation</span><span>Modernist centre</span><span>Postmodern recombination</span></div>
+</section>
+</main>
+<script>
+const works = [{"title": "Cows and Herdsman by a River", "artist": "Aelbert Cuyp", "year": "after 1650", "phase": "Naturalistic representation", "desc": "A 17th century Naturalistic cow remains embedded in atmosphere, landscape, anatomy and pastoral narrative. Its formal elements are not yet isolated from the world around it.", "source": "The Frick Collection, New York", "img": "assets/01-aelbert-cuyp-cows-and-herdsman.jpg"}, 
+{"title": "The Yorkshire Rose", "artist": "Charles Turner", "year": "early 19th century", "phase": "The animal as a dominant and abstracted form", "desc": "The landscape recedes and the body expands into a broad horizontal mass. The cow becomes easier to read as an arrangement of body, legs, surface and support.", "source": "Bonhams", "img": "assets/02-charles-turner-yorkshire-rose.png"}, 
+{"title": "Cow", "artist": "Arthur Dove", "year": "ca. 1912", "phase": "Modern abstraction", "desc": "Anatomical description gives way to overlapping curves, tonal masses and compressed bodily signals. The animal is still legible, but no longer depends on naturalistic depiction.", "source": "The Metropolitan Museum of Art", "img": "assets/03-arthur-dove-cow.jpg"}, 
+{"title": "The Bull (Le Taureau), intermediate state", "artist": "Pablo Picasso", "year": "1945", "phase": "Analytical reduction", "desc": "The body is reorganized into an internal geometric system. Volume remains, but anatomy is increasingly translated into lines, divisions and structural relationships.", "source": "The Museum of Modern Art, New York", "img": "assets/04-picasso-bull-intermediate.jpg"}, 
+{"title": "The Bull (Le Taureau), final reduced state", "artist": "Pablo Picasso", "year": "1946", "phase": "Maximum reduction", "desc": "The animal reaches the centre point of the sequence: a minimal graphic structure containing only enough information to remain recognizable as a bull.", "source": "The Museum of Modern Art, New York", "img": "assets/05-picasso-bull-final.jpg"}, 
+{"title": "Composition VIII (The Cow)", "artist": "Theo van Doesburg", "year": "ca. 1918", "phase": "Cow as geometric order", "desc": "The recognizable body has been fully subordinated to rectangles, proportion, rhythm and colour. The cow survives as an abstract organizational logic rather than an illustrated animal.", "source": "The Museum of Modern Art, New York", "img": "assets/06-theo-van-doesburg-composition-viii.jpg"}, 
+{"title": "Cow Going Abstract", "artist": "Roy Lichtenstein", "year": "1982", "phase": "Reduction made self-conscious", "desc": "One of two Lichtenstein series that explicitly reference Picasso. Here modernist reduction is replayed as Pop quotation, so the cow carries more than formal simplification: it also carries art-historical reference, reproduction, and self-conscious commentary on abstraction itself.", "source": "Artsy", "img": "assets/07-roy-lichtenstein-cow-going-abstract.png"}, 
+{"title": "Cow", "artist": "Andy Warhol", "year": "1966", "phase": "Cow as reproducible sign", "desc": "The animal is detached from landscape and anatomy and transformed into a high-contrast, industrially repeatable graphic image. Cow-ness becomes surface, colour and cultural recognition.", "source": "Museum of Modern Art", "img": "assets/08-andy-warhol-cow.jpg"}, 
+{"title": "Vache Paysage", "artist": "François-Xavier Lalanne", "year": "1976", "phase": "Image becomes functional object", "desc": "The cow is physically deconstructed and recombined as sculpture, landscape and furniture. Its hollow body and structural legs bring the animal into direct contact with architecture and use.", "source": "Luc Castel / Getty Images & Sotheby's", "img": "assets/09-lalanne-vache-paysage-1.png", "img2": "assets/09-lalanne-vache-paysage-2.webp"}, 
+{"title": "Continental", "artist": "Michele De Lucchi for Memphis Milano", "year": "1984", "phase": "Postmodern complex reduction", "desc": "The cow is reduced to pattern, horizontal mass and supports, then recomposed through intersecting planes, industrial laminate and contradictory geometries. Representation becomes simpler while formal and semantic associations multiply.", "source": "Memphis Milano", "img": "assets/10-michele-de-lucchi-continental.webp"}];
+const slider=document.getElementById('slider');
+const hero=document.getElementById('hero');
+const labels=document.getElementById('labels');
+works.forEach((_,i)=>{const s=document.createElement('span');s.textContent=i+1;labels.appendChild(s)});
+function show(index){
+ const i=Math.max(0,Math.min(works.length-1,index));
+ const w=works[i];
+ hero.style.opacity='0';
+ setTimeout(()=>{
+   if(w.img2){
+     hero.className='hero-media split';
+     hero.innerHTML=`<img src="${w.img}" alt="${w.title} by ${w.artist}"><img src="${w.img2}" alt="Additional view of ${w.title} by ${w.artist}">`;
+   }else{
+     hero.className='hero-media single';
+     hero.innerHTML=`<img src="${w.img}" alt="${w.title} by ${w.artist}">`;
+   }
+   hero.style.opacity='1';
+ },70);
+ document.getElementById('stageTag').textContent=`Stage ${i+1} / 10`;
+ document.getElementById('phase').textContent=w.phase;
+ document.getElementById('artist').textContent=`${w.artist}, ${w.year}`;
+ document.getElementById('title').textContent=w.title;
+ document.getElementById('desc').textContent=w.desc;
+ document.getElementById('source').textContent=`Image source: ${w.source}`;
+ [...labels.children].forEach((el,n)=>el.classList.toggle('active',n===i));
+ slider.value=i+1;
+}
+slider.addEventListener('input',e=>show(Number(e.target.value)-1));
+document.getElementById('prev').addEventListener('click',()=>show(Number(slider.value)-2));
+document.getElementById('next').addEventListener('click',()=>show(Number(slider.value)));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(Number(slider.value)-2);if(e.key==='ArrowRight')show(Number(slider.value));});
+show(0);
+</script>
+</body></html>
