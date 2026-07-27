@@ -63,6 +63,26 @@
     const title = container.querySelector(".iw-title");
     const desc = container.querySelector(".iw-desc");
     const source = container.querySelector(".iw-source");
+    const imageWrap = container.querySelector(".iw-image-wrap");
+
+    function fitHeroImages() {
+      if (!imageWrap || !hero) return;
+      var maxH = hero.clientHeight || imageWrap.clientHeight;
+      var maxW = hero.clientWidth || imageWrap.clientWidth;
+      var isSplit = hero.classList.contains("split");
+      var imgs = hero.querySelectorAll("img");
+      var gap = isSplit && imgs.length > 1 ? 14 * (imgs.length - 1) : 0;
+      var stacked = isSplit && window.matchMedia("(max-width: 560px)").matches;
+      var slotW = isSplit && !stacked ? (maxW - gap) / imgs.length : maxW;
+      var slotH = isSplit && stacked ? (maxH - gap) / imgs.length : maxH;
+      imgs.forEach(function (img) {
+        img.removeAttribute("style");
+        if (!img.complete || !img.naturalWidth) return;
+        var scale = Math.min(slotW / img.naturalWidth, slotH / img.naturalHeight, 1);
+        img.style.width = Math.round(img.naturalWidth * scale) + "px";
+        img.style.height = Math.round(img.naturalHeight * scale) + "px";
+      });
+    }
 
     works.forEach(function (_, i) {
       const span = document.createElement("span");
@@ -86,6 +106,14 @@
             '<img src="' + base + w.img + '" alt="' + w.title + ' by ' + w.artist + '">';
         }
         hero.style.opacity = "1";
+        hero.querySelectorAll("img").forEach(function (img) {
+          if (img.complete) {
+            fitHeroImages();
+          } else {
+            img.addEventListener("load", fitHeroImages, { once: true });
+          }
+        });
+        fitHeroImages();
       }, 70);
 
       stageTag.textContent = "Stage " + (i + 1) + " / " + works.length;
@@ -109,6 +137,8 @@
     container.querySelector(".iw-next").addEventListener("click", function () {
       show(Number(slider.value));
     });
+
+    window.addEventListener("resize", fitHeroImages);
 
     container.addEventListener("keydown", function (e) {
       if (e.key === "ArrowLeft") {
