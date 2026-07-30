@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from docx import Document
+from docx.oxml.ns import qn
 
 ROOT = Path(__file__).resolve().parent
 DOCX = Path(
@@ -37,6 +38,78 @@ INTERACTIVES = {
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".jfif"}
 COLLECTION_NAME = "This is not an apple"
+W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+
+
+def run_element_to_html(r_el) -> str:
+    text_parts = []
+    rpr = r_el.find(qn("w:rPr"))
+    bold = rpr is not None and rpr.find(qn("w:b")) is not None
+    italic = rpr is not None and rpr.find(qn("w:i")) is not None
+    for t in r_el.findall(qn("w:t")):
+        if t.text:
+            text_parts.append(html.escape(t.text))
+    text = "".join(text_parts)
+    if not text:
+        return ""
+    if italic and bold:
+        return f"<em><strong>{text}</strong></em>"
+    if italic:
+        return f"<em>{text}</em>"
+    if bold:
+        return f"<strong>{text}</strong>"
+    return text
+
+
+def footnote_ref_html(fn_id: str) -> str:
+    return (
+        f'<sup class="footnote-ref"><a href="#fn-{fn_id}" data-fn="{fn_id}" '
+        f'aria-label="Footnote {fn_id}">{fn_id}</a></sup>'
+    )
+
+
+def paragraph_to_html(p) -> str:
+    parts = []
+    for child in p._element:
+        tag = child.tag.split("}")[-1]
+        if tag == "r":
+            parts.append(run_element_to_html(child))
+        elif tag == "footnoteReference":
+            fn_id = child.get(qn("w:id"))
+            if fn_id:
+                parts.append(footnote_ref_html(fn_id))
+    return normalize_collection_casing("".join(parts))
+
+
+def load_footnotes() -> dict[str, str]:
+    import zipfile
+    from xml.etree import ElementTree as ET
+
+    footnotes: dict[str, str] = {}
+    with zipfile.ZipFile(DOCX) as z:
+        root = ET.fromstring(z.read("word/footnotes.xml"))
+    for fn in root.findall(f".//{{{W_NS}}}footnote"):
+        fn_id = fn.get(f"{{{W_NS}}}id")
+        if not fn_id or fn_id in ("-1", "0"):
+            continue
+        parts = []
+        for p_el in fn.findall(qn("w:p")):
+            for child in p_el:
+                tag = child.tag.split("}")[-1]
+                if tag == "r":
+                    parts.append(run_element_to_html(child))
+        footnotes[fn_id] = normalize_collection_casing("".join(parts))
+    return footnotes
+
+
+def render_footnotes_block(footnotes: dict[str, str]) -> str:
+    if not footnotes:
+        return '<aside id="footnotes" hidden></aside>'
+    items = "".join(
+        f'<p id="fn-{fn_id}">{html_text}</p>'
+        for fn_id, html_text in sorted(footnotes.items(), key=lambda item: int(item[0]))
+    )
+    return f'<aside id="footnotes" hidden>{items}</aside>'
 
 
 def slugify(text: str) -> str:
@@ -47,39 +120,7 @@ def slugify(text: str) -> str:
 
 
 def runs_to_html(p) -> str:
-    chunks: list[tuple[str | None, str]] = []
-
-    def key(run):
-        if run.bold and run.italic:
-            return "both"
-        if run.bold:
-            return "strong"
-        if run.italic:
-            return "em"
-        return None
-
-    for run in p.runs:
-        if not run.text:
-            continue
-        k = key(run)
-        if chunks and chunks[-1][0] == k:
-            chunks[-1] = (k, chunks[-1][1] + run.text)
-        else:
-            chunks.append((k, run.text))
-
-    out = []
-    for k, text in chunks:
-        text = html.escape(text)
-        text = text.replace("\n", "<br /><br />")
-        if k == "em":
-            out.append(f"<em>{text}</em>")
-        elif k == "strong":
-            out.append(f"<strong>{text}</strong>")
-        elif k == "both":
-            out.append(f"<em><strong>{text}</strong></em>")
-        else:
-            out.append(text)
-    return normalize_collection_casing("".join(out))
+    return paragraph_to_html(p)
 
 
 def normalize_collection_casing(text: str) -> str:
@@ -161,12 +202,12 @@ def close_schema(body: list[str], schema_open: bool) -> bool:
 
 def main() -> None:
     doc = Document(str(DOCX))
+    footnotes = load_footnotes()
     interactive_queue = ["concept", "cows", "columns"]
     body: list[str] = []
     toc: list[tuple[str, str]] = []
     references: list[str] = []
     in_refs = False
-    lead_done = False
     schema_open = False
     doc_title = "Complex Reduction"
 
@@ -273,12 +314,7 @@ def main() -> None:
         if style == "Normal":
             flush_figure()
             schema_open = close_schema(body, schema_open)
-            para_html = runs_to_html(p)
-            if not lead_done:
-                body.append(f'<p class="lead">{para_html}</p>')
-                lead_done = True
-            else:
-                body.append(f"<p>{para_html}</p>")
+            body.append(f"<p>{runs_to_html(p)}</p>")
 
     flush_figure()
     schema_open = close_schema(body, schema_open)
@@ -317,7 +353,7 @@ def main() -> None:
     <article>{article_html}<div class="references">{refs_html}</div></article>
   </main>
   <footer class="footer">{html.escape(doc_title)} · Interactive essay</footer>
-  <aside id="footnotes" hidden></aside>
+  {render_footnotes_block(footnotes)}
   <script src="./interactives/data-bundle.js"></script>
   <script src="./interactives/shared/polygon-widget.js" defer></script>
   <script src="./interactives/shared/widget.js" defer></script>
