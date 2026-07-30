@@ -72,12 +72,16 @@
   }
 
   function parseReferenceText(text) {
+    const yearPattern = "(\\d{4}[a-z]?|n\\.d\\.)";
     let match = text.match(
-      /^(.+?),\s*.+?\.\s*\((\d{4}|n\.d\.)(?:-[a-z])?(?:,\s*[^)]+)?(?:\/(\d{4}))?\)/i
+      new RegExp(
+        "^(.+?),\\s*.+?\\.\\s*\\(" + yearPattern + "(?:,\\s*[^)]+)?(?:\\/(\\d{4}))?\\)",
+        "i"
+      )
     );
     if (!match) {
       match = text.match(
-        /^(.+?)\.\s*\((\d{4}|n\.d\.)(?:-[a-z])?(?:,\s*[^)]+)?(?:\/(\d{4}))?\)/i
+        new RegExp("^(.+?)\\.\\s*\\(" + yearPattern + "(?:,\\s*[^)]+)?(?:\\/(\\d{4}))?\\)", "i")
       );
     }
     if (!match) return null;
@@ -144,7 +148,8 @@
       if (!comma) return;
       const author = comma[1].trim();
       comma[2].split(/,\s*/).forEach(function (y) {
-        if (y.trim()) results.push({ author: author, year: y.trim() });
+        const year = y.trim();
+        if (year) results.push({ author: author, year: year });
       });
     });
     return results;
@@ -182,13 +187,13 @@
   }
 
   function isCitationLike(inner) {
-    return /,\s*\d{4}|,\s*n\.d\./i.test(inner) || /et\s+al\./i.test(inner);
+    return /,\s*\d{4}[a-z]?|,\s*n\.d\.|\bet\s+al\./i.test(inner);
   }
 
   function getTextNodesIn(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
-        if (node.parentElement && node.parentElement.closest(".reference, .figure-note, .interactive-widget, .cite-ref")) {
+        if (node.parentElement && node.parentElement.closest(".reference, .interactive-widget, .cite-ref")) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -253,7 +258,7 @@
   }
 
   function wrapCitationsInElement(el, index) {
-    if (el.closest(".references, .figure-note, .interactive-widget")) return;
+    if (el.closest(".references, .interactive-widget")) return;
     if (el.matches(".cite-ref")) return;
 
     const text = el.textContent;
@@ -330,7 +335,7 @@
     const article = document.querySelector("article");
     if (!article) return;
 
-    article.querySelectorAll("p, .lead, .schema, .interactive-note").forEach(function (el) {
+    article.querySelectorAll("p, .lead, .schema, .interactive-note, .figure-note").forEach(function (el) {
       wrapCitationsInElement(el, index);
     });
 
