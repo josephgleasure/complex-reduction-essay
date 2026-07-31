@@ -41,24 +41,41 @@ COLLECTION_NAME = "This is not an apple"
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
 
-def run_element_to_html(r_el) -> str:
-    text_parts = []
+def get_run_style(r_el) -> str | None:
     rpr = r_el.find(qn("w:rPr"))
     bold = rpr is not None and rpr.find(qn("w:b")) is not None
     italic = rpr is not None and rpr.find(qn("w:i")) is not None
+    if italic and bold:
+        return "both"
+    if italic:
+        return "em"
+    if bold:
+        return "strong"
+    return None
+
+
+def get_run_text(r_el) -> str:
+    text_parts = []
     for t in r_el.findall(qn("w:t")):
         if t.text:
             text_parts.append(html.escape(t.text))
-    text = "".join(text_parts)
+    return "".join(text_parts)
+
+
+def format_styled_text(text: str, style: str | None) -> str:
     if not text:
         return ""
-    if italic and bold:
-        return f"<em><strong>{text}</strong></em>"
-    if italic:
+    if style == "em":
         return f"<em>{text}</em>"
-    if bold:
+    if style == "strong":
         return f"<strong>{text}</strong>"
+    if style == "both":
+        return f"<em><strong>{text}</strong></em>"
     return text
+
+
+def run_element_to_html(r_el) -> str:
+    return format_styled_text(get_run_text(r_el), get_run_style(r_el))
 
 
 def footnote_ref_html(fn_id: str) -> str:
@@ -69,16 +86,50 @@ def footnote_ref_html(fn_id: str) -> str:
 
 
 def paragraph_to_html(p) -> str:
-    parts = []
+    parts: list[str] = []
+    buffer: list[tuple[str | None, str]] = []
+
+    def flush_buffer() -> None:
+        nonlocal buffer
+        if not buffer:
+            return
+        style = buffer[0][0]
+        text = "".join(chunk for _, chunk in buffer)
+        parts.append(format_styled_text(text, style))
+        buffer = []
+
     for child in p._element:
         tag = child.tag.split("}")[-1]
         if tag == "r":
-            parts.append(run_element_to_html(child))
+            fn_refs = child.findall(qn("w:footnoteReference"))
+            text = get_run_text(child)
+            style = get_run_style(child)
+            if fn_refs:
+                flush_buffer()
+                if text:
+                    parts.append(format_styled_text(text, style))
+                for fn_ref in fn_refs:
+                    fn_id = fn_ref.get(qn("w:id"))
+                    if fn_id:
+                        parts.append(footnote_ref_html(fn_id))
+                continue
+            if not text:
+                continue
+            if buffer and buffer[-1][0] == style:
+                buffer[-1] = (style, buffer[-1][1] + text)
+            else:
+                flush_buffer()
+                buffer = [(style, text)]
         elif tag == "footnoteReference":
+            flush_buffer()
             fn_id = child.get(qn("w:id"))
             if fn_id:
                 parts.append(footnote_ref_html(fn_id))
-    return normalize_collection_casing("".join(parts))
+
+    flush_buffer()
+    html_text = "".join(parts)
+    html_text = html_text.replace("\n", "<br /><br />")
+    return normalize_collection_casing(html_text)
 
 
 def load_footnotes() -> dict[str, str]:
