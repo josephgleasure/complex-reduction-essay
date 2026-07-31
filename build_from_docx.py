@@ -7,6 +7,8 @@ from pathlib import Path
 
 from docx import Document
 from docx.oxml.ns import qn
+from docx.table import Table
+from docx.text.paragraph import Paragraph
 
 ROOT = Path(__file__).resolve().parent
 DOCX = Path(
@@ -39,6 +41,15 @@ INTERACTIVES = {
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".jfif"}
 COLLECTION_NAME = "This is not an apple"
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+CONTENT_TYPE_EXT = {
+    "image/png": ".png",
+    "image/jpeg": ".jpeg",
+    "image/jpg": ".jpg",
+    "image/gif": ".gif",
+    "image/webp": ".webp",
+}
 
 
 def get_run_style(r_el) -> str | None:
@@ -244,6 +255,59 @@ def existing_figure_paths(num: int) -> list[str]:
     return [f"./figures/figure-{num:02d}/{f.name}" for f in files]
 
 
+def extract_and_save_figure_images(num: int, element, doc) -> list[str]:
+    folder = FIGURES / f"figure-{num:02d}"
+    folder.mkdir(parents=True, exist_ok=True)
+    for path in folder.iterdir():
+        if path.suffix.lower() in IMAGE_EXTENSIONS:
+            path.unlink()
+
+    paths: list[str] = []
+    for index, blip in enumerate(element.findall(f".//{{{A_NS}}}blip"), start=1):
+        r_id = blip.get(f"{{{R_NS}}}embed")
+        if not r_id:
+            continue
+        part = doc.part.related_parts[r_id]
+        ext = CONTENT_TYPE_EXT.get(part.content_type, ".png")
+        name = f"image-{index}{ext}"
+        (folder / name).write_bytes(part.blob)
+        paths.append(f"./figures/figure-{num:02d}/{name}")
+    return paths
+
+
+def figure_paths(num: int, element, doc, cached: list[str] | None = None) -> list[str]:
+    if cached:
+        return cached
+    extracted = extract_and_save_figure_images(num, element, doc)
+    return extracted or existing_figure_paths(num)
+
+
+def parse_table_figure(cell_text: str) -> tuple[int, str, str] | None:
+    lines = cell_text.split("\n")
+    if not lines or not lines[0].strip().startswith("Figure"):
+        return None
+    match = re.search(r"(\d+)", lines[0])
+    if not match:
+        return None
+    num = int(match.group(1))
+    title = lines[1].strip() if len(lines) > 1 else ""
+    note_start = next(
+        (index for index, line in enumerate(lines) if line.strip().lower().startswith("note.")),
+        None,
+    )
+    note = "\n".join(lines[note_start:]).strip() if note_start is not None else ""
+    return num, title, note
+
+
+def iter_body_blocks(doc):
+    for child in doc.element.body:
+        tag = child.tag.split("}")[-1]
+        if tag == "p":
+            yield "p", Paragraph(child, doc)
+        elif tag == "tbl":
+            yield "tbl", Table(child, doc)
+
+
 def close_schema(body: list[str], schema_open: bool) -> bool:
     if schema_open:
         body.append("</div>")
@@ -271,7 +335,7 @@ def main() -> None:
             pending = {}
             return
         num = pending.get("num") or figure_num
-        paths = existing_figure_paths(num)
+        paths = pending.get("paths") or existing_figure_paths(num)
         if paths:
             body.append(
                 render_figure(
@@ -283,7 +347,26 @@ def main() -> None:
             )
         pending = {}
 
-    for p in doc.paragraphs:
+    def render_table_figure(table: Table) -> None:
+        cell = table.rows[0].cells[0]
+        parsed = parse_table_figure(cell.text)
+        if not parsed:
+            return
+        num, title, note = parsed
+        paths = figure_paths(num, cell._element, doc)
+        if not paths:
+            return
+        note_html = html.escape(note) if note else ""
+        body.append(render_figure(num, title, note_html, paths))
+
+    for block_type, block in iter_body_blocks(doc):
+        if block_type == "tbl":
+            flush_figure()
+            schema_open = close_schema(body, schema_open)
+            render_table_figure(block)
+            continue
+
+        p = block
         style = (p.style.name if p.style else "") or "Normal"
         text = p.text.strip()
 
@@ -331,6 +414,9 @@ def main() -> None:
             continue
 
         if style == "Figure Image":
+            num = pending.get("num") or figure_num
+            if num:
+                pending["paths"] = extract_and_save_figure_images(num, p._element, doc)
             if pending.get("title") and pending.get("note"):
                 flush_figure()
             continue
